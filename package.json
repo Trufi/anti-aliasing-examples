@@ -23,6 +23,8 @@
     "tslib": "^1.8.0"
   },
   "devDependencies": {
+    "2gl": "^0.4.1",
+    "@2gis/gl-matrix": "^2.4.5",
     "fork-ts-checker-webpack-plugin": "^0.2.9",
     "ts-loader": "^3.2.0",
     "tslint": "^5.8.0",

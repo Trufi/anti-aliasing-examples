@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"2gl@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/2gl/-/2gl-0.4.1.tgz#ea32746b1131a42e6ec41c7254951bac351a4116"
+  dependencies:
+    "@2gis/gl-matrix" "^2.4.1"
+
+"@2gis/gl-matrix@^2.4.1", "@2gis/gl-matrix@^2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@2gis/gl-matrix/-/gl-matrix-2.4.5.tgz#8e866c32317008a168e976ac42584fd5cf8ab263"
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
