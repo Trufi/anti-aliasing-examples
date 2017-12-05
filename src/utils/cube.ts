@@ -1,7 +1,7 @@
-import { createProrgam } from './program';
+import { ShaderProgram, Shader, Buffer } from '2gl';
 import * as mat4 from '@2gis/gl-matrix/mat4';
 
-const cubeVertexCode = `
+const vertexCode = `
 attribute vec3 a_position;
 // attribute vec3 a_color;
 uniform mat4 u_cube;
@@ -13,7 +13,7 @@ void main(void) {
 }
 `;
 
-const cubeFragmentCode = `
+const fragmentCode = `
 precision mediump float;
 // varying vec3 v_color;
 void main(void) {
@@ -21,62 +21,6 @@ void main(void) {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
 `;
-
-// const vertices = [
-//     // Передняя грань
-//     -1, -1, -1,
-//     1, -1, -1,
-//     -1, -1, 1,
-
-//     1, -1, 1,
-//     -1, -1, 1,
-//     1, -1, -1,
-
-//     // Задняя грань
-//     -1, 1, -1,
-//     -1, 1, 1,
-//     1, 1, -1,
-
-//     1, 1, 1,
-//     1, 1, -1,
-//     -1, 1, 1,
-
-//     // Нижняя грань
-//     -1, -1, -1,
-//     -1, 1, -1,
-//     1, -1, -1,
-
-//     1, 1, -1,
-//     1, -1, -1,
-//     -1, 1, -1,
-
-//     // Верхняя грань
-//     -1, -1, 1,
-//     1, -1, 1,
-//     -1, 1, 1,
-
-//     1, 1, 1,
-//     -1, 1, 1,
-//     1, -1, 1,
-
-//     // Левая грань
-//     -1, -1, -1,
-//     -1, -1, 1,
-//     -1, 1, -1,
-
-//     -1, 1, 1,
-//     -1, 1, -1,
-//     -1, -1, 1,
-
-//     // Правая грань
-//     1, -1, -1,
-//     1, 1, -1,
-//     1, -1, 1,
-
-//     1, 1, 1,
-//     1, -1, 1,
-//     1, 1, -1,
-// ];
 
 const lineVertices = [
     // Передняя грань
@@ -111,43 +55,41 @@ const lineVertices = [
 ];
 
 export class Cube {
-    public matrix: Float32Array;
-
-    private program: WebGLProgram;
-    private vertexBuffer: WebGLBuffer;
-    private aPosition: number;
-    private uCamera: WebGLUniformLocation;
-    private uCube: WebGLUniformLocation;
+    private matrix: Float32Array;
+    private program: ShaderProgram<{}, {}>;
+    private vertexBuffer: Buffer;
     private gl: WebGLRenderingContext;
 
     constructor(gl: WebGLRenderingContext) {
         this.gl = gl;
 
-        this.program = createProrgam(gl, cubeVertexCode, cubeFragmentCode);
+        this.program = new ShaderProgram({
+            vertex: new Shader('vertex', vertexCode),
+            fragment: new Shader('fragment', fragmentCode),
+            uniforms: [
+                {name: 'u_cube', type: 'mat4'},
+                {name: 'u_camera', type: 'mat4'},
+            ],
+            attributes: [
+                {name: 'a_position'},
+            ],
+        });
 
-        // Получим местоположение переменных в программе шейдеров
-        this.uCube = gl.getUniformLocation(this.program, 'u_cube') as WebGLUniformLocation;
-        this.uCamera = gl.getUniformLocation(this.program, 'u_camera') as WebGLUniformLocation;
-        this.aPosition = gl.getAttribLocation(this.program, 'a_position');
-
-        this.vertexBuffer = gl.createBuffer() as WebGLBuffer;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineVertices), gl.STATIC_DRAW);
-
+        this.vertexBuffer = new Buffer(new Float32Array(lineVertices));
         this.matrix = new Float32Array(mat4.create());
     }
 
     public render(cameraMatrix: Float32Array) {
         const gl = this.gl;
 
-        gl.useProgram(this.program);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.enableVertexAttribArray(this.aPosition);
-        gl.vertexAttribPointer(this.aPosition, 3, gl.FLOAT, false, 0, 0);
-
-        gl.uniformMatrix4fv(this.uCube, false, this.matrix);
-        gl.uniformMatrix4fv(this.uCamera, false, cameraMatrix);
+        this.program
+            .enable(gl)
+            .bind(gl, {
+                u_cube: this.matrix,
+                u_camera: cameraMatrix,
+            }, {
+                a_position: this.vertexBuffer,
+            });
 
         gl.drawArrays(gl.LINES, 0, lineVertices.length / 3);
     }
