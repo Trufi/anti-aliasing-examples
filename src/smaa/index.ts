@@ -1,6 +1,6 @@
 import { Cube } from '../utils/cube';
-import { createFrameBuffer } from '../utils/framebuffer';
 import { SMAAPlane } from './plane';
+import { RenderTarget, Texture } from '2gl';
 
 export class SMAAExample {
     public canvas: HTMLCanvasElement;
@@ -8,7 +8,7 @@ export class SMAAExample {
     private gl: WebGLRenderingContext;
     private cube: Cube;
     private smaaPlane: SMAAPlane;
-    private frameBufferData: { texture: WebGLTexture; frameBuffer: WebGLFramebuffer; renderBuffer: WebGLRenderbuffer; };
+    private renderTarget: RenderTarget;
 
     constructor(size: number[]) {
         const canvas = this.canvas = document.createElement('canvas');
@@ -24,13 +24,14 @@ export class SMAAExample {
         this.cube = new Cube(gl);
         this.smaaPlane = new SMAAPlane(gl, size);
 
-        this.frameBufferData = createFrameBuffer(gl, size, gl.RGBA);
+        this.renderTarget = new RenderTarget({size});
+        this.renderTarget.texture.minFilter = Texture.LinearFilter;
     }
 
     public render(cameraMatrix: Float32Array) {
         const gl = this.gl;
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBufferData.frameBuffer);
+        this.renderTarget.bind(gl);
 
         // Очищаем сцену, закрашивая её в белый цвет
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
@@ -43,6 +44,6 @@ export class SMAAExample {
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        this.smaaPlane.render(this.frameBufferData.texture);
+        this.smaaPlane.render(this.renderTarget.texture);
     }
 }

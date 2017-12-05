@@ -1,7 +1,6 @@
-import { ShaderProgram, Shader, Buffer } from '2gl';
+import { ShaderProgram, Shader, Buffer, Texture, RenderTarget } from '2gl';
 
 import { planeVertices, planeUV } from '../utils/plane';
-import { createFrameBuffer } from '../utils/framebuffer';
 import { getArea, getSearch } from './textures';
 
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing_smaa.html
@@ -439,48 +438,44 @@ void main() {
 `;
 
 export class SMAAPlane {
+    private gl: WebGLRenderingContext;
+    private size: number[];
     private uVBuffer: Buffer;
     private vertexBuffer: Buffer;
     private pass3Program: ShaderProgram<{}, {}>;
     private pass2Program: ShaderProgram<{}, {}>;
     private pass1Program: ShaderProgram<{}, {}>;
-    private textureSearch: WebGLTexture | undefined;
-    private textureArea: WebGLTexture | undefined;
-    private weightsData: { texture: WebGLTexture; frameBuffer: WebGLFramebuffer; renderBuffer: WebGLRenderbuffer; };
-    private edgesData: { texture: WebGLTexture; frameBuffer: WebGLFramebuffer; renderBuffer: WebGLRenderbuffer; };
-    private gl: WebGLRenderingContext;
-    private size: number[];
+    private textureSearch: Texture | undefined;
+    private textureArea: Texture | undefined;
+    private weightsRenderTarget: RenderTarget;
+    private edgesRenderTarget: RenderTarget;
 
     constructor(gl: WebGLRenderingContext, size: number[]) {
         this.gl = gl;
         this.size = size;
 
-        this.edgesData = createFrameBuffer(gl, size, gl.RGB);
-        this.weightsData = createFrameBuffer(gl, size, gl.RGBA);
+        this.edgesRenderTarget = new RenderTarget({size});
+        this.edgesRenderTarget.texture.format = Texture.RgbFormat;
+        this.edgesRenderTarget.texture.minFilter = Texture.LinearFilter;
+
+        this.weightsRenderTarget = new RenderTarget({size});
+        this.weightsRenderTarget.texture.minFilter = Texture.LinearFilter;
 
         const areaImage = new Image();
         areaImage.onload = () => {
-            this.textureArea = gl.createTexture() as WebGLTexture;
-            gl.bindTexture(gl.TEXTURE_2D, this.textureArea);
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, areaImage);
+            this.textureArea = new Texture(areaImage);
+            this.textureArea.flipY = false;
+            this.textureArea.minFilter = Texture.LinearFilter;
+            this.textureArea.format = Texture.RgbFormat;
         };
         areaImage.src = getArea();
 
         const searchImage = new Image();
         searchImage.onload = () => {
-            this.textureSearch = gl.createTexture() as WebGLTexture;
-            gl.bindTexture(gl.TEXTURE_2D, this.textureSearch);
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, searchImage);
+            this.textureSearch = new Texture(searchImage);
+            this.textureSearch.flipY = false;
+            this.textureSearch.minFilter = Texture.NearestFilter;
+            this.textureSearch.magFilter = Texture.NearestFilter;
         };
         searchImage.src = getSearch();
 
@@ -532,21 +527,19 @@ export class SMAAPlane {
         });
     }
 
-    public render(readTexture: WebGLTexture) {
+    public render(readTexture: Texture) {
         if (!this.textureArea || !this.textureSearch) {
             return;
         }
         const gl = this.gl;
 
         // pass 1
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.edgesData.frameBuffer);
+        this.edgesRenderTarget.bind(gl);
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, readTexture);
+        readTexture.enable(gl, 0);
 
         this.pass1Program
             .enable(gl)
@@ -561,20 +554,14 @@ export class SMAAPlane {
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
         // pass 2
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.weightsData.frameBuffer);
+        this.weightsRenderTarget.bind(gl);
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.edgesData.texture);
-
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this.textureArea);
-
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.textureSearch);
+        this.edgesRenderTarget.texture.enable(gl, 0);
+        this.textureArea.enable(gl, 1);
+        this.textureSearch.enable(gl, 2);
 
         this.pass2Program
             .enable(gl)
@@ -591,17 +578,13 @@ export class SMAAPlane {
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
         // pass 3
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.weightsData.texture);
-
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, readTexture);
+        this.weightsRenderTarget.texture.enable(gl, 0);
+        readTexture.enable(gl, 1);
 
         this.pass3Program
             .enable(gl)
