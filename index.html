@@ -14,31 +14,26 @@
     </style>
 </head>
 <body>
-    <canvas id="smaa" width="1000" height="1000"></canvas>
-    <canvas id="fxaa" width="1000" height="1000"></canvas>
-    <canvas id="simple" width="1000" height="1000"></canvas>
-    <canvas id="msaa" width="1000" height="1000"></canvas>
+    <script>
+        var compileShader = WebGLRenderingContext.prototype.compileShader;
 
-<script>
-    var compileShader = WebGLRenderingContext.prototype.compileShader;
+        WebGLRenderingContext.prototype.compileShader = function(shader) {
+            compileShader.call(this, shader);
 
-    WebGLRenderingContext.prototype.compileShader = function(shader) {
-        compileShader.call(this, shader);
+            if (!this.getShaderParameter(shader, this.COMPILE_STATUS)) {
+                console.log(this.getShaderInfoLog(shader));
+            }
+        };
 
-        if (!this.getShaderParameter(shader, this.COMPILE_STATUS)) {
-            console.log(this.getShaderInfoLog(shader));
-        }
-    };
+        var linkProgram = WebGLRenderingContext.prototype.linkProgram;
+        WebGLRenderingContext.prototype.linkProgram = function(program) {
+            linkProgram.call(this, program);
 
-    var linkProgram = WebGLRenderingContext.prototype.linkProgram;
-    WebGLRenderingContext.prototype.linkProgram = function(program) {
-        linkProgram.call(this, program);
-
-        if (!this.getProgramParameter(program, this.LINK_STATUS)) {
-            console.error(this.getProgramInfoLog(program));
-        }
-    };
-</script>
+            if (!this.getProgramParameter(program, this.LINK_STATUS)) {
+                console.error(this.getProgramInfoLog(program));
+            }
+        };
+    </script>
 
     <script src="./dist/index.js"></script>
 </body>

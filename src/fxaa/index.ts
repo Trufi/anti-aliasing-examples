@@ -1,54 +1,48 @@
-import * as mat4 from '@2gis/gl-matrix/mat4';
 import { Cube } from '../utils/cube';
 import { createFrameBuffer } from '../utils/framebuffer';
 import { FXAAPlane } from './plane';
 
-export function createFXAA(canvasId: string) {
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    const size = [canvas.width, canvas.height];
-    const gl = canvas.getContext('webgl', {
-        antialias: false,
-    }) as WebGLRenderingContext;
+export class FXAAExample {
+    public canvas: HTMLCanvasElement;
 
-    gl.viewport(0, 0, size[0], size[1]);
+    private gl: WebGLRenderingContext;
+    private cube: Cube;
+    private frameBufferData: { texture: WebGLTexture; frameBuffer: WebGLFramebuffer; renderBuffer: WebGLRenderbuffer; };
+    private fxaaPlane: FXAAPlane;
 
-    const cube = new Cube(gl);
-    const fxaaPlane = new FXAAPlane(gl, size);
+    constructor(size: number[]) {
+        const canvas = this.canvas = document.createElement('canvas');
+        canvas.width = size[0];
+        canvas.height = size[1];
 
-    const cameraMatrix = new Float32Array(mat4.create());
-    mat4.perspective(cameraMatrix, 45, size[0] / size[1], 0.1, 1000);
-    mat4.translate(cameraMatrix, cameraMatrix, [0, 0, -5]);
+        const gl = this.gl = canvas.getContext('webgl', {
+            antialias: false,
+        }) as WebGLRenderingContext;
 
-    // Запомним время последней отрисовки кадра
-    let lastRenderTime = Date.now();
+        gl.viewport(0, 0, size[0], size[1]);
 
-    const frameBufferData = createFrameBuffer(gl, size, gl.RGBA);
+        this.cube = new Cube(gl);
+        this.fxaaPlane = new FXAAPlane(gl, size);
 
-    function render() {
-        // Запрашиваем рендеринг на следующий кадр
-        requestAnimationFrame(render);
+        this.frameBufferData = createFrameBuffer(gl, size, gl.RGBA);
+    }
 
-        // Получаем время прошедшее с прошлого кадра
-        const time = Date.now();
-        const dt = lastRenderTime - time;
+    public render(cameraMatrix: Float32Array) {
+        const gl = this.gl;
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBufferData.frameBuffer);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBufferData.frameBuffer);
 
         // Очищаем сцену, закрашивая её в белый цвет
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // Включаем фильтр глубины
-        gl.enable(gl.DEPTH_TEST);
+        // gl.enable(gl.DEPTH_TEST);
 
-        cube.render(cameraMatrix, dt);
+        this.cube.render(cameraMatrix);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        fxaaPlane.render(frameBufferData.texture);
-
-        lastRenderTime = time;
+        this.fxaaPlane.render(this.frameBufferData.texture);
     }
-
-    render();
 }

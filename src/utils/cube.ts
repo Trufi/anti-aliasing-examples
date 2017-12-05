@@ -137,13 +137,8 @@ export class Cube {
         this.matrix = new Float32Array(mat4.create());
     }
 
-    public render(cameraMatrix: Float32Array, dt: number) {
+    public render(cameraMatrix: Float32Array) {
         const gl = this.gl;
-
-        // Вращаем куб относительно оси Y
-        mat4.rotateY(this.matrix, this.matrix, dt / 10000);
-        // Вращаем куб относительно оси Z
-        mat4.rotateZ(this.matrix, this.matrix, dt / 10000);
 
         gl.useProgram(this.program);
 
