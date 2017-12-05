@@ -25,6 +25,8 @@
   "devDependencies": {
     "2gl": "^0.4.1",
     "@2gis/gl-matrix": "^2.4.5",
+    "@types/dat-gui": "^0.6.3",
+    "dat-gui": "^0.5.0",
     "fork-ts-checker-webpack-plugin": "^0.2.9",
     "ts-loader": "^3.2.0",
     "tslint": "^5.8.0",

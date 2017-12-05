@@ -1,8 +1,13 @@
 import * as mat4 from '@2gis/gl-matrix/mat4';
+import { GUI } from 'dat-gui';
+
+const config = {
+    rotation: true,
+};
 
 import { SimpleExample } from './simple';
-import { SMAAExample } from './smaa';
 import { FXAAExample } from './fxaa';
+import { SMAAExample } from './smaa';
 import { MSAAExample } from './msaa';
 
 const examplesSize = [500, 500];
@@ -13,8 +18,8 @@ mat4.translate(cameraMatrix, cameraMatrix, [0, 0, -5]);
 
 const examples = [
     new SimpleExample(examplesSize),
-    new SMAAExample(examplesSize),
     new FXAAExample(examplesSize),
+    new SMAAExample(examplesSize),
     new MSAAExample(examplesSize),
 ];
 
@@ -33,10 +38,12 @@ function loop() {
     const time = Date.now();
     const dt = time - lastTime;
 
-    // Вращаем куб относительно оси Y
-    mat4.rotateY(cameraMatrix, cameraMatrix, dt / 10000);
-    // Вращаем куб относительно оси Z
-    mat4.rotateZ(cameraMatrix, cameraMatrix, dt / 10000);
+    if (config.rotation) {
+        // Вращаем куб относительно оси Y
+        mat4.rotateY(cameraMatrix, cameraMatrix, dt / 10000);
+        // Вращаем куб относительно оси Z
+        mat4.rotateZ(cameraMatrix, cameraMatrix, dt / 10000);
+    }
 
     examples.forEach((example) => example.render(cameraMatrix));
 
@@ -44,3 +51,6 @@ function loop() {
 }
 
 requestAnimationFrame(loop);
+
+const gui = new GUI();
+gui.add(config, 'rotation');
