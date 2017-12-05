@@ -34,7 +34,7 @@ export class FXAAExample {
 
         // Очищаем сцену, закрашивая её в белый цвет
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         // Включаем фильтр глубины
         // gl.enable(gl.DEPTH_TEST);

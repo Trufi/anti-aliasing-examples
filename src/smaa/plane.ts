@@ -1,7 +1,11 @@
 import { ShaderProgram, Shader, Buffer } from '2gl';
+
 import { planeVertices, planeUV } from '../utils/plane';
 import { createFrameBuffer } from '../utils/framebuffer';
 import { getArea, getSearch } from './textures';
+
+// https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing_smaa.html
+
 const vertexCode = `
 precision highp float;
 precision highp int;
