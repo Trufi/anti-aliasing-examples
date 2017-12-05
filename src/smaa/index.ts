@@ -38,7 +38,7 @@ export class SMAAExample {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         // Включаем фильтр глубины
-        // gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.DEPTH_TEST);
 
         this.cube.render(cameraMatrix);
 

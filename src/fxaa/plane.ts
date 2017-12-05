@@ -1,4 +1,4 @@
-import { ShaderProgram, Shader, Buffer } from '2gl';
+import { ShaderProgram, Shader, Buffer, Texture } from '2gl';
 import { planeVertices, planeUV } from '../utils/plane';
 
 // https://threejs.org/examples/webgl_postprocessing_fxaa.html
@@ -1090,14 +1090,13 @@ export class FXAAPlane {
         });
     }
 
-    public render(readTexture: WebGLTexture) {
+    public render(readTexture: Texture) {
         const gl = this.gl;
 
         gl.clearColor(0.5, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, readTexture);
+        readTexture.enable(gl, 0);
 
         this.program
             .enable(gl)

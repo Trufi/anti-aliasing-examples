@@ -1,13 +1,13 @@
 import { Cube } from '../utils/cube';
-import { createFrameBuffer } from '../utils/framebuffer';
 import { FXAAPlane } from './plane';
+import { RenderTarget, Texture } from '2gl';
 
 export class FXAAExample {
     public canvas: HTMLCanvasElement;
 
     private gl: WebGLRenderingContext;
     private cube: Cube;
-    private frameBufferData: { texture: WebGLTexture; frameBuffer: WebGLFramebuffer; renderBuffer: WebGLRenderbuffer; };
+    private renderTarget: RenderTarget;
     private fxaaPlane: FXAAPlane;
 
     constructor(size: number[]) {
@@ -24,25 +24,26 @@ export class FXAAExample {
         this.cube = new Cube(gl);
         this.fxaaPlane = new FXAAPlane(gl, size);
 
-        this.frameBufferData = createFrameBuffer(gl, size, gl.RGBA);
+        this.renderTarget = new RenderTarget({size});
+        this.renderTarget.texture.minFilter = Texture.LinearFilter;
     }
 
     public render(cameraMatrix: Float32Array) {
         const gl = this.gl;
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBufferData.frameBuffer);
+        this.renderTarget.bind(gl);
 
         // Очищаем сцену, закрашивая её в белый цвет
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         // Включаем фильтр глубины
-        // gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.DEPTH_TEST);
 
         this.cube.render(cameraMatrix);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        this.fxaaPlane.render(this.frameBufferData.texture);
+        this.fxaaPlane.render(this.renderTarget.texture);
     }
 }
