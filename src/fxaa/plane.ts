@@ -173,6 +173,9 @@ export class FXAAPlane {
     public render(texture: WebGLTexture) {
         const gl = this.gl;
 
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+
         gl.useProgram(this.program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uVBuffer);
@@ -183,7 +186,7 @@ export class FXAAPlane {
         gl.enableVertexAttribArray(this.positionAttribute);
         gl.vertexAttribPointer(this.positionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-        gl.uniform2fv(this.resolutionUniform, this.size);
+        gl.uniform2fv(this.resolutionUniform, [1 / this.size[0], 1 / this.size[1]]);
 
         gl.uniform1i(this.textureUniform, 0);
         gl.activeTexture(gl.TEXTURE0);

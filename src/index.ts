@@ -6,3 +6,6 @@ createFXAA('fxaa');
 
 import { createMSAA } from './msaa';
 createMSAA('msaa');
+
+import { createSMAA } from './smaa';
+createSMAA('smaa');

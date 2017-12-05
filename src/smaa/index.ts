@@ -1,9 +1,9 @@
 import * as mat4 from '@2gis/gl-matrix/mat4';
 import { Cube } from '../utils/cube';
 import { createFrameBuffer } from '../utils/framebuffer';
-import { FXAAPlane } from './plane';
+import { SMAAPlane } from './plane';
 
-export function createFXAA(canvasId: string) {
+export function createSMAA(canvasId: string) {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     const size = [canvas.width, canvas.height];
     const gl = canvas.getContext('webgl', {
@@ -13,7 +13,7 @@ export function createFXAA(canvasId: string) {
     gl.viewport(0, 0, size[0], size[1]);
 
     const cube = new Cube(gl);
-    const fxaaPlane = new FXAAPlane(gl, size);
+    const smaaPlane = new SMAAPlane(gl, size);
 
     const cameraMatrix = new Float32Array(mat4.create());
     mat4.perspective(cameraMatrix, 45, size[0] / size[1], 0.1, 1000);
@@ -36,16 +36,16 @@ export function createFXAA(canvasId: string) {
 
         // Очищаем сцену, закрашивая её в белый цвет
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         // Включаем фильтр глубины
-        gl.enable(gl.DEPTH_TEST);
+        // gl.enable(gl.DEPTH_TEST);
 
         cube.render(cameraMatrix, dt);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        fxaaPlane.render(frameBufferData.texture);
+        smaaPlane.render(frameBufferData.texture);
 
         lastRenderTime = time;
     }

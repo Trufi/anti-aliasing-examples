@@ -1,4 +1,8 @@
-export function createFrameBuffer(gl: WebGLRenderingContext, size: number[]) {
+export function createFrameBuffer(
+    gl: WebGLRenderingContext,
+    size: number[],
+    format: number,
+) {
     const texture = gl.createTexture() as WebGLTexture;
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -8,7 +12,7 @@ export function createFrameBuffer(gl: WebGLRenderingContext, size: number[]) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     // gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size[0], size[1], 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, size[0], size[1], 0, format, gl.UNSIGNED_BYTE, null);
 
     const frameBuffer = gl.createFramebuffer() as WebGLFramebuffer;
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
