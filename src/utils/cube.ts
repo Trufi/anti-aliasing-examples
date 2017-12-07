@@ -55,7 +55,8 @@ const lineVertices = [
 ];
 
 export class Cube {
-    private matrix: Float32Array;
+    public matrix: Float32Array;
+
     private program: ShaderProgram<{}, {}>;
     private vertexBuffer: Buffer;
     private gl: WebGLRenderingContext;
@@ -92,5 +93,13 @@ export class Cube {
             });
 
         gl.drawArrays(gl.LINES, 0, lineVertices.length / 3);
+    }
+
+    public update(dt: number, inverse: boolean) {
+        const angle = (inverse ? -dt : dt) / 10000;
+        // Вращаем куб относительно оси Y
+        mat4.rotateY(this.matrix, this.matrix, angle);
+        // Вращаем куб относительно оси Z
+        mat4.rotateZ(this.matrix, this.matrix, angle);
     }
 }

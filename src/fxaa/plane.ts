@@ -1093,9 +1093,6 @@ export class FXAAPlane {
     public render(readTexture: Texture) {
         const gl = this.gl;
 
-        gl.clearColor(0.5, 0.0, 0.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-
         readTexture.enable(gl, 0);
 
         this.program

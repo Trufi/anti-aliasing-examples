@@ -580,8 +580,8 @@ export class SMAAPlane {
         // pass 3
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+        // gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         this.weightsRenderTarget.texture.enable(gl, 0);
         readTexture.enable(gl, 1);
