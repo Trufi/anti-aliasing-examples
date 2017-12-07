@@ -442,9 +442,9 @@ export class SMAAPlane {
     private size: number[];
     private uVBuffer: Buffer;
     private vertexBuffer: Buffer;
-    private pass3Program: ShaderProgram<{}, {}>;
-    private pass2Program: ShaderProgram<{}, {}>;
-    private pass1Program: ShaderProgram<{}, {}>;
+    private pass3Program: ShaderProgram;
+    private pass2Program: ShaderProgram;
+    private pass1Program: ShaderProgram;
     private textureSearch: Texture | undefined;
     private textureArea: Texture | undefined;
     private weightsRenderTarget: RenderTarget;
@@ -454,28 +454,37 @@ export class SMAAPlane {
         this.gl = gl;
         this.size = size;
 
-        this.edgesRenderTarget = new RenderTarget({size});
-        this.edgesRenderTarget.texture.format = Texture.RgbFormat;
-        this.edgesRenderTarget.texture.minFilter = Texture.LinearFilter;
+        this.edgesRenderTarget = new RenderTarget({
+            size,
+            format: Texture.RgbaFormat,
+            minFilter: Texture.LinearFilter,
+        });
 
-        this.weightsRenderTarget = new RenderTarget({size});
-        this.weightsRenderTarget.texture.minFilter = Texture.LinearFilter;
+        this.weightsRenderTarget = new RenderTarget({
+            size,
+            minFilter: Texture.LinearFilter,
+        });
 
         const areaImage = new Image();
         areaImage.onload = () => {
-            this.textureArea = new Texture(areaImage);
-            this.textureArea.flipY = false;
-            this.textureArea.minFilter = Texture.LinearFilter;
-            this.textureArea.format = Texture.RgbFormat;
+            this.textureArea = new Texture(areaImage, {
+                flipY: false,
+                minFilter: Texture.LinearFilter,
+                format: Texture.RgbFormat,
+                generateMipmaps: false,
+            });
         };
         areaImage.src = getArea();
 
         const searchImage = new Image();
         searchImage.onload = () => {
-            this.textureSearch = new Texture(searchImage);
-            this.textureSearch.flipY = false;
-            this.textureSearch.minFilter = Texture.NearestFilter;
-            this.textureSearch.magFilter = Texture.NearestFilter;
+            this.textureSearch = new Texture(searchImage, {
+                flipY: false,
+                minFilter: Texture.NearestFilter,
+                magFilter: Texture.NearestFilter,
+                format: Texture.RgbFormat,
+                generateMipmaps: false,
+            });
         };
         searchImage.src = getSearch();
 
@@ -559,7 +568,7 @@ export class SMAAPlane {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        this.edgesRenderTarget.texture.enable(gl, 0);
+        this.edgesRenderTarget.getTexture().enable(gl, 0);
         this.textureArea.enable(gl, 1);
         this.textureSearch.enable(gl, 2);
 
@@ -583,7 +592,7 @@ export class SMAAPlane {
         // gl.clearColor(0.0, 0.0, 0.0, 1.0);
         // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        this.weightsRenderTarget.texture.enable(gl, 0);
+        this.weightsRenderTarget.getTexture().enable(gl, 0);
         readTexture.enable(gl, 1);
 
         this.pass3Program

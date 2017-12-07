@@ -1,11 +1,11 @@
 {
-  "name": "typescript-boilerplate",
+  "name": "anti-aliasing-examples",
   "version": "0.0.1",
-  "description": "Typescript boilerplate for new projects",
+  "description": "Anti-aliasing examples",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Trufi/typescript-boilerplate.git"
+    "url": "git+https://github.com/Trufi/anti-aliasing-examples.git"
   },
   "author": {
     "name": "Mstislav Zhivodkov",

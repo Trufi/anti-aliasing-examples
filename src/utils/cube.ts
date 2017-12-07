@@ -57,7 +57,7 @@ const lineVertices = [
 export class Cube {
     public matrix: Float32Array;
 
-    private program: ShaderProgram<{}, {}>;
+    private program: ShaderProgram;
     private vertexBuffer: Buffer;
     private gl: WebGLRenderingContext;
 

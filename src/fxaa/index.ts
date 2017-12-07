@@ -31,8 +31,10 @@ export class FXAAExample {
 
         this.fxaaPlane = new FXAAPlane(gl, size);
 
-        this.renderTarget = new RenderTarget({size});
-        this.renderTarget.texture.minFilter = Texture.LinearFilter;
+        this.renderTarget = new RenderTarget({
+            size,
+            minFilter: Texture.LinearFilter,
+        });
     }
 
     public render(cameraMatrix: Float32Array) {
@@ -52,7 +54,7 @@ export class FXAAExample {
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-        this.fxaaPlane.render(this.renderTarget.texture);
+        this.fxaaPlane.render(this.renderTarget.getTexture());
         this.aliasedCube.render(cameraMatrix);
     }
 

@@ -1063,7 +1063,7 @@ void main() {
 export class FXAAPlane {
     private gl: WebGLRenderingContext;
     private size: number[];
-    private program: ShaderProgram<{}, {}>;
+    private program: ShaderProgram;
     private vertexBuffer: Buffer;
     private uVBuffer: Buffer;
 

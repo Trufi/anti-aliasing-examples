@@ -27,7 +27,7 @@ void main(void) {
 
 export class MSAAPlane {
     private gl: WebGLRenderingContext;
-    private program: ShaderProgram<{}, {}>;
+    private program: ShaderProgram;
     private vertexBuffer: Buffer;
     private uVBuffer: Buffer;
 
