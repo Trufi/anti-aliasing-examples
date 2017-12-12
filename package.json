@@ -23,7 +23,7 @@
     "tslib": "^1.8.0"
   },
   "devDependencies": {
-    "2gl": "^0.4.1",
+    "2gl": "0.5.1",
     "@2gis/gl-matrix": "^2.4.5",
     "@types/dat-gui": "^0.6.3",
     "dat-gui": "^0.5.0",
