@@ -1,0 +1,38 @@
+{
+  "name": "anti-aliasing-examples",
+  "version": "0.0.1",
+  "description": "Anti-aliasing examples",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Trufi/anti-aliasing-examples.git"
+  },
+  "author": {
+    "name": "Mstislav Zhivodkov",
+    "email": "stevemyz@gmail.com",
+    "url": "https://trufi.github.io/"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --env.production",
+    "dev": "webpack-dev-server",
+    "lint": "tslint 'src/**/*.ts'",
+    "test": "npm run lint && npm run build"
+  },
+  "dependencies": {
+    "tslib": "^1.8.0"
+  },
+  "devDependencies": {
+    "2gl": "0.5.1",
+    "@2gis/gl-matrix": "^2.4.5",
+    "@types/dat-gui": "^0.6.3",
+    "dat-gui": "^0.5.0",
+    "fork-ts-checker-webpack-plugin": "^0.2.9",
+    "ts-loader": "^3.2.0",
+    "tslint": "^5.8.0",
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "^2.6.2",
+    "webpack": "^3.9.1",
+    "webpack-dev-server": "^2.9.5"
+  }
+}
